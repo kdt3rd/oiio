@@ -4761,9 +4761,19 @@ output_file (int argc, const char *argv[])
         // partially read at the point that we open the file. We also force
         // a unique filename to protect against multiple processes running
         // at the same time on the same file.
-        std::string extension = Filesystem::extension(filename);
-        std::string tmpfilename = Filesystem::replace_extension (filename, ".%%%%%%%%.temp"+extension);
-        tmpfilename = Filesystem::unique_path(tmpfilename);
+        std::string tmpfilename;
+        bool dorename = true;
+        if ( out->supports ("non_filesystem_output") )
+        {
+            tmpfilename = filename;
+            dorename = false;
+        }
+        else
+        {
+            std::string extension = Filesystem::extension(filename);
+            tmpfilename = Filesystem::replace_extension (filename, ".%%%%%%%%.temp"+extension);
+            tmpfilename = Filesystem::unique_path(tmpfilename);
+        }
 
         // Do the initial open
         ImageOutput::OpenMode mode = ImageOutput::Create;
@@ -4827,7 +4837,7 @@ output_file (int argc, const char *argv[])
 
         // We wrote to a temporary file, so now atomically move it to the
         // original desired location.
-        if (ok) {
+        if (ok && dorename) {
             std::string err;
             ok = Filesystem::rename (tmpfilename, filename, err);
             if (! ok)
