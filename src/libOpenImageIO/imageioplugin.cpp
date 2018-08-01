@@ -230,6 +230,10 @@ catalog_plugin (const std::string &format_name,
     ImageInput * name ## _input_imageio_create ();              \
     extern const char *name ## _input_extensions[];             \
     extern const char *name ## _imageio_library_version();
+#define PLUGENTRY_WO(name)                                      \
+    ImageInput * name ## _output_imageio_create ();             \
+    extern const char *name ## _output_extensions[];            \
+    extern const char *name ## _imageio_library_version();
 
     PLUGENTRY (bmp);
     PLUGENTRY (cineon);
@@ -237,6 +241,7 @@ catalog_plugin (const std::string &format_name,
     PLUGENTRY_RO (dicom);
     PLUGENTRY (dpx);
     PLUGENTRY (ffmpeg);
+    PLUGENTRY_WO (ffmpeg_pipe);
     PLUGENTRY (field3d);
     PLUGENTRY (fits);
     PLUGENTRY (gif);
@@ -289,6 +294,12 @@ catalog_builtin_plugins ()
                    name ## _input_extensions,                             \
                    nullptr, nullptr,                                      \
                    name ## _imageio_library_version())
+#define DECLAREPLUG_WO(name)                                              \
+    declare_imageio_format (#name,                                        \
+                   nullptr, nullptr,                                      \
+                   (ImageOutput::Creator) name ## _output_imageio_create, \
+                   name ## _output_extensions,                            \
+                   name ## _imageio_library_version())
 
     DECLAREPLUG (bmp);
     DECLAREPLUG_RO (cineon);
@@ -300,6 +311,7 @@ catalog_builtin_plugins ()
 #ifdef USE_FFMPEG
     DECLAREPLUG_RO (ffmpeg);
 #endif
+    DECLAREPLUG_WO (ffmpeg_pipe);
 #ifdef USE_FIELD3D
     DECLAREPLUG (field3d);
 #endif
